@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LATI-42 Insta</title>
+<style>
+body{margin:0;font-family:sans-serif;background:#000;color:#fff}
+.header{position:sticky;top:0;background:#000;border-bottom:1px solid #333;padding:12px;text-align:center;font-weight:bold;font-size:18px}
+.feed{max-width:500px;margin:0 auto}
+.post{border-bottom:1px solid #222;margin-bottom:10px}
+.post img{width:100%;display:block}
+.post-top{padding:10px;display:flex;align-items:center;gap:10px}
+.avatar{width:32px;height:32px;background:linear-gradient(45deg,#feda75,#fa7e1e,#d62976,#962fbf,#4f5bd5);border-radius:50%}
+.actions{padding:10px;display:flex;gap:15px;font-size:22px}
+.actions span{cursor:pointer}
+.caption{padding:0 10px 10px 10px;font-size:14px}
+#uploadBtn{position:fixed;bottom:20px;right:20px;background:#fff;color:#000;border-radius:50%;width:60px;height:60px;font-size:30px;border:none}
+input[type=file]{display:none}
+</style>
+</head>
+<body>
+<div class="header">LATI-42</div>
+<div class="feed" id="feed"></div>
+<button id="uploadBtn" onclick="document.getElementById('file').click()">+</button>
+<input type="file" id="file" accept="image/*">
+
+<script>
+const feed = document.getElementById('feed');
+let posts = JSON.parse(localStorage.getItem('lati_posts')||'[]');
+
+function render(){
+ feed.innerHTML='';
+ posts.slice().reverse().forEach((p,i)=>{
+   feed.innerHTML+=`
+   <div class="post">
+     <div class="post-top"><div class="avatar"></div><b>lati42_user</b></div>
+     <img src="${p.img}">
+     <div class="actions">
+       <span onclick="like(${i})">❤️ ${p.likes||0}</span>
+       <span>💬</span>
+     </div>
+     <div class="caption">${p.caption||'Nuovo post LATI-42 🛡️'}</div>
+   </div>`;
+ });
+ localStorage.setItem('lati_posts',JSON.stringify(posts));
+}
+function like(idx){ posts[posts.length-1-idx].likes=(posts[posts.length-1-idx].likes||0)+1; render(); }
+
+document.getElementById('file').addEventListener('change', e=>{
+ const file=e.target.files[0];
+ if(!file) return;
+ const reader=new FileReader();
+ reader.onload=ev=>{
+   posts.push({img:ev.target.result,likes:0,caption:prompt('Scrivi caption:')||''});
+   render();
+ };
+ reader.readAsDataURL(file);
+});
+
+render();
+if(posts.length==0){
+ posts=[{img:'https://picsum.photos/500/500?1',likes:12,caption:'Benvenuti in LATI-42 Insta 🔥'}];
+ render();
+}
+</script>
+</body>
+</html>
